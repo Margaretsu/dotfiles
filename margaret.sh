@@ -54,7 +54,7 @@ getuserandpass() { \
 
 usercheck() { \
 	! (id -u "$name" &>/dev/null) ||
-	dialog --colors --title "WARNING!" --yes-label "CONTINUE" --no-label "No wait..." --yesno "The user \`$name\` already exists on this system. LARBS can install for a user already existing, but it will \\Zboverwrite\\Zn any conflicting settings/dotfiles on the user account.\\n\\nLARBS will \\Zbnot\\Zn overwrite your user files, documents, videos, etc., so don't worry about that, but only click <CONTINUE> if you don't mind your settings being overwritten.\\n\\nNote also that LARBS will change $name's password to the one you just gave." 14 70
+	dialog --colors --title "WARNING!" --yes-label "CONTINUE" --no-label "No wait..." --yesno "The user \`$name\` already exists on this system. setup-my-arch can install for a user already existing, but it will \\Zboverwrite\\Zn any conflicting settings/dotfiles on the user account.\\n\\nsetup-my-arch will \\Zbnot\\Zn overwrite your user files, documents, videos, etc., so don't worry about that, but only click <CONTINUE> if you don't mind your settings being overwritten.\\n\\nNote also that setup-my-arch will change $name's password to the one you just gave." 14 70
 	}
 
 adduserandpass() { \
@@ -67,7 +67,7 @@ adduserandpass() { \
 
 gitmakeinstall() {
 	dir=$(mktemp -d)
-	dialog --title "LARBS Installation" --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
+	dialog --title "setup-my-arch Installation" --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
 	git clone --depth 1 "$1" "$dir" &>/dev/null
 	cd "$dir" || exit
 	make &>/dev/null
@@ -75,12 +75,12 @@ gitmakeinstall() {
 	cd /tmp || return ;}
 
 maininstall() { # Installs all needed programs from main repo.
-	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	dialog --title "setup-my-arch Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" &>/dev/null
 	}
 
 aurinstall() { \
-	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+	dialog --title "setup-my-arch Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	grep "^$1$" <<< "$aurinstalled" && return
 	sudo -u "$name" $aurhelper -S --noconfirm "$1" &>/dev/null
 	}
@@ -106,8 +106,8 @@ serviceinit() { for service in "$@"; do
 	done ;}
 
 newperms() { # Set special sudoers settings for install (or after).
-	sed -i "/#LARBS/d" /etc/sudoers
-	echo -e "$@ #LARBS" >> /etc/sudoers ;}
+	sed -i "/#setup-my-arch/d" /etc/sudoers
+	echo -e "$@ #setup-my-arch" >> /etc/sudoers ;}
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
 	rmmod pcspkr
@@ -174,7 +174,7 @@ refreshkeys
 # in a fakeroot environment, this is required for all builds with AUR.
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
-dialog --title "LARBS Installation" --infobox "Installing \`basedevel\` and \`git\` for installing other software." 5 70
+dialog --title "setup-my-arch Installation" --infobox "Installing \`basedevel\` and \`git\` for installing other software." 5 70
 pacman --noconfirm --needed -S base-devel git &>/dev/null
 
 manualinstall $aurhelper
@@ -188,15 +188,12 @@ installationloop
 # Install the dotfiles in the user's home directory
 putgitrepo "$dotfilesrepo" "/home/$name"
 
-# Install the LARBS Firefox profile in ~/.mozilla/firefox/
-putgitrepo "https://github.com/slmoby/mozillarbs.git" "/home/$name/.mozilla/firefox"
-
 # Pulseaudio, if/when initially installed, often needs a restart to work immediately.
 [[ -f /usr/bin/pulseaudio ]] && resetpulse
 
 # Install vim `plugged` plugins.
-dialog --infobox "Installing vim plugins..." 4 50
-sudo -u "$name" vim -E -c "PlugUpdate|visual|q|q" >/dev/null
+#dialog --infobox "Installing vim plugins..." 4 50
+#sudo -u "$name" vim -E -c "PlugUpdate|visual|q|q" >/dev/null
 
 # Enable services here.
 serviceinit NetworkManager cronie
